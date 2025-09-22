@@ -1,5 +1,5 @@
 {
-  "name": "MediVoice Senior",
+  "name": "MediScan",
   "description": "A healthcare application for elderly patients to understand prescriptions using OCR, medicine recognition, and text-to-speech, with a senior-friendly UI.",
   "requestFramePermissions": [
     "camera"

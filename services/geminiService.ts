@@ -1,6 +1,7 @@
 
 import { GoogleGenAI, GenerateContentResponse, Type } from "@google/genai";
-import { MedicineInfo } from '../types';
+import { MedicineInfo, ScannedMedicine } from '../types';
+import { recognizableFoods } from '../data/foodData';
 
 if (!process.env.API_KEY) {
     throw new Error("API_KEY environment variable is not set");
@@ -24,6 +25,15 @@ const medicineSchema = {
         },
     }
 };
+
+const scannedMedicineSchema = {
+    type: Type.OBJECT,
+    properties: {
+        name: { type: Type.STRING, description: 'Name of the medicine.' },
+        dosage: { type: Type.STRING, description: 'Dosage strength, e.g., "500 mg".' },
+    }
+};
+
 
 const fileToGenerativePart = async (file: File) => {
   const base64EncodedDataPromise = new Promise<string>((resolve) => {
@@ -67,15 +77,13 @@ export const analyzePrescription = async (file: File): Promise<MedicineInfo[]> =
 };
 
 
-export const recognizeMedicine = async (file: File): Promise<MedicineInfo[]> => {
+export const recognizeMedicine = async (file: File): Promise<ScannedMedicine[]> => {
     const imagePart = await fileToGenerativePart(file);
     
     const prompt = `
-        You are an expert at identifying common medicines. Analyze the provided image of a medicine strip or bottle. 
-        Identify the medicine from the following list: Paracetamol (Dolo-650), Metformin (Glycomet 500), Amlodipine (Amlopres 5), 
-        Atorvastatin (Atorva 10), Omeprazole (Omez 20), Cetirizine (Cetzine 10), Amoxicillin (Mox 500), Aspirin (Ecosprin 75).
-        Extract the medicine name, its dosage, a recommended frequency of 1, and a recommended timing of 'morning'. 
-        Provide the output as a JSON array containing a single object. If you cannot identify the medicine from the list, return an empty array.
+        You are an expert at identifying medicines from images. Analyze the provided image of a medicine strip or bottle.
+        Extract the medicine name and its dosage.
+        Provide the output as a JSON array containing a single object. If you cannot identify the medicine, return an empty array.
     `;
     
     try {
@@ -86,7 +94,7 @@ export const recognizeMedicine = async (file: File): Promise<MedicineInfo[]> => 
                 responseMimeType: "application/json",
                 responseSchema: {
                     type: Type.ARRAY,
-                    items: medicineSchema
+                    items: scannedMedicineSchema
                 },
             },
         });
@@ -95,5 +103,48 @@ export const recognizeMedicine = async (file: File): Promise<MedicineInfo[]> => 
     } catch (error) {
         console.error("Error recognizing medicine:", error);
         throw new Error("Failed to recognize medicine. The AI model could not identify the item.");
+    }
+};
+
+export const recognizeFood = async (file: File): Promise<{ foodName: string } | null> => {
+    const imagePart = await fileToGenerativePart(file);
+
+    const prompt = `
+        You are an expert at identifying common food items from an image.
+        Analyze the provided image and identify the main food item.
+        The food must be one of the following: ${recognizableFoods.join(', ')}.
+        If you recognize a food from the list, respond with its name in lowercase.
+        For example, if you see an Apple, respond with "apple".
+        Provide the output as a JSON object with a single key "foodName".
+        If you cannot confidently identify a food from the list, return a JSON object with "foodName" as null.
+    `;
+
+    try {
+        const response: GenerateContentResponse = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: { parts: [imagePart, { text: prompt }] },
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        foodName: { 
+                            type: Type.STRING,
+                            nullable: true,
+                            description: `The name of the identified food item from the provided list, or null if not identifiable. Must be lowercase.`
+                        }
+                    },
+                },
+            },
+        });
+        const jsonStr = response.text.trim();
+        const result = JSON.parse(jsonStr);
+        if (result && (typeof result.foodName === 'string' || result.foodName === null)) {
+            return result.foodName ? { foodName: result.foodName.toLowerCase() } : null;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error recognizing food:", error);
+        throw new Error("Failed to recognize food. The AI model could not identify the item.");
     }
 };

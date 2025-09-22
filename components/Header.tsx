@@ -12,7 +12,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
       <div className="container mx-auto px-4 md:px-8 py-4 flex justify-between items-center">
         <div className="flex items-center cursor-pointer" onClick={() => onNavigate('home')}>
           <span className="text-3xl mr-2">💊</span>
-          <h1 className="text-xl md:text-2xl font-bold">MediVoice Senior</h1>
+          <h1 className="text-xl md:text-2xl font-bold">MediScan</h1>
         </div>
         <nav className="flex items-center space-x-4 md:space-x-6 text-lg">
           <button onClick={() => onNavigate('home')} className="hover:text-brand-yellow transition-colors font-semibold">🏠 Home</button>

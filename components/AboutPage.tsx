@@ -4,7 +4,7 @@ import React from 'react';
 const AboutPage: React.FC = () => {
   return (
     <div className="bg-white p-8 rounded-2xl shadow-lg max-w-4xl mx-auto">
-      <h2 className="text-4xl font-bold text-brand-blue mb-6 text-center">About MediVoice Senior ℹ️</h2>
+      <h2 className="text-4xl font-bold text-brand-blue mb-6 text-center">About MediScan ℹ️</h2>
       <div className="flex flex-col md:flex-row items-center gap-8 mb-8">
         <div className="text-8xl">👵👴</div>
         <p className="text-lg text-gray-700">
@@ -17,14 +17,19 @@ const AboutPage: React.FC = () => {
         <div>
           <h3 className="text-2xl font-bold text-brand-green mb-2">📄 Scan Prescription</h3>
           <p className="text-gray-600">
-            Simply take a picture of your prescription, and our smart technology will read it for you. 
-            It tells you the medicine name, dosage, and when to take it in a clear, large format.
+            Simply take a picture of your prescription. The app saves it and shows you the medicine name, dosage, and when to take it in a clear, large format.
           </p>
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-brand-yellow mb-2">📷 Scan Medicine</h3>
+          <h3 className="text-2xl font-bold text-brand-yellow mb-2">💊 Verify Medicine</h3>
           <p className="text-gray-600">
-            Confused about a medicine bottle? Just scan it with your camera. We'll identify the medicine and give you the important details right away.
+            After scanning your prescription, you can scan any of your medicine boxes. We'll check if it matches what your doctor prescribed, helping you avoid mistakes.
+          </p>
+        </div>
+        <div>
+          <h3 className="text-2xl font-bold text-orange-500 mb-2">🥗 Check Your Food</h3>
+          <p className="text-gray-600">
+              Curious about your meal? Scan your food to get a simple breakdown of its nutritional content, like sugar, fat, and protein.
           </p>
         </div>
         <div>

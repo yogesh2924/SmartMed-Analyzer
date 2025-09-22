@@ -4,11 +4,12 @@ import Header from './components/Header';
 import HomePage from './components/HomePage';
 import AboutPage from './components/AboutPage';
 import ScanPage from './components/ScanPage';
-import { Page, ScanMode } from './types';
+import { Page, ScanMode, MedicineInfo } from './types';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [scanMode, setScanMode] = useState<ScanMode>('prescription');
+  const [prescription, setPrescription] = useState<MedicineInfo[] | null>(null);
 
   const navigateTo = (page: Page) => {
     setCurrentPage(page);
@@ -19,16 +20,26 @@ const App: React.FC = () => {
     setCurrentPage('scan');
   };
 
+  const handlePrescriptionScanned = (newPrescription: MedicineInfo[]) => {
+    setPrescription(newPrescription);
+    navigateTo('home');
+  };
+
   const renderPage = () => {
     switch (currentPage) {
       case 'home':
-        return <HomePage onStartScan={startScan} />;
+        return <HomePage onStartScan={startScan} prescription={prescription} />;
       case 'scan':
-        return <ScanPage mode={scanMode} />;
+        return <ScanPage 
+                  mode={scanMode} 
+                  prescription={prescription} 
+                  onPrescriptionScanned={handlePrescriptionScanned}
+                  onNavigateHome={() => navigateTo('home')}
+                />;
       case 'about':
         return <AboutPage />;
       default:
-        return <HomePage onStartScan={startScan} />;
+        return <HomePage onStartScan={startScan} prescription={prescription} />;
     }
   };
 
@@ -38,9 +49,6 @@ const App: React.FC = () => {
       <main className="flex-grow container mx-auto p-4 md:p-8">
         {renderPage()}
       </main>
-      <footer className="text-center p-4 text-gray-500 text-sm">
-        <p>MediVoice Senior &copy; 2024. A tool to help you understand your medicines.</p>
-      </footer>
     </div>
   );
 };
